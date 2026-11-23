@@ -1,0 +1,55 @@
+name: Build Android APK (TransLogist PRO)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java 21 (for Android Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Ensure Android project & sync Capacitor
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk TransLogist_PRO.apk
+
+      - name: Upload TransLogist_PRO.apk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TransLogist_PRO_APK
+          path: TransLogist_PRO.apk
+          retention-days: 90
