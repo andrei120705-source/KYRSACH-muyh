@@ -1,0 +1,10 @@
+import type { Order, Vehicle, Driver } from '../src/types/logistics';
+type Cargo = Pick<Order, 'body_type_required' | 'weight_tons' | 'volume_m3'> & Partial<Pick<Order, 'id' | 'vehicle_id' | 'order_number'>>;
+type CrewOrder = Pick<Order, 'is_adr'> & Partial<Pick<Order, 'id' | 'driver_id' | 'order_number'>>;
+export const ACTIVE_STATUSES: string[];
+export function vehicleIssue(order: Cargo, vehicle: Vehicle | undefined, orders?: Order[]): string | null;
+export function driverIssue(order: CrewOrder, driver: Driver | undefined, orders?: Order[], now?: Date): string | null;
+export function transitionIssue(order: Pick<Order, 'status' | 'vehicle_id' | 'driver_id'>, status: string): string | null;
+export function orderInputIssue(payload: Record<string, unknown>): string | null;
+export function isOverdue(order: Pick<Order, 'status' | 'planned_arrival'>, now?: Date): boolean;
+export function monthlyDynamics(orders: Order[], now?: Date): import('../src/types/logistics').DashboardData['monthlyDynamics'];
